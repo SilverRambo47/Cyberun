@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { JsonForms } from "@jsonforms/react";
+import { JsonFormsRendererRegistryEntry } from "@jsonforms/core";
+import { materialRenderers } from "@jsonforms/material-renderers";
+import { schema } from "./schema";
+import { uiSchema } from "./uiSchema";
+import { initialData } from "./data";
+import PercentageControl from "./PercentageControl";
+import CountryAutocomplete from "./CountryAutocomplete";
+import { ControlElement } from "@jsonforms/core"; // Import du type
 
-function App() {
+const isControlElement = (uiSchema: any): uiSchema is ControlElement => {
+  return uiSchema && uiSchema.scope;
+};
+
+const customRenderers: JsonFormsRendererRegistryEntry[] = [
+  ...materialRenderers,
+  { 
+    tester: (uiSchema) => uiSchema.options?.custom ? 5 : -1, 
+    renderer: PercentageControl 
+  },
+  { 
+    tester: (uiSchema) => isControlElement(uiSchema) && uiSchema.scope === "#/properties/pays" ? 5 : -1, 
+    renderer: CountryAutocomplete 
+  }
+];
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Formulaire avec Pays et Pourcentages</h1>
+      <JsonForms
+        schema={schema}
+        uischema={uiSchema}
+        data={initialData}
+        renderers={customRenderers}
+        onChange={({ data }) => console.log("Données:", data)}
+      />
     </div>
   );
-}
+};
 
 export default App;

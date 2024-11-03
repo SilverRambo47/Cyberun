@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { withJsonFormsControlProps } from "@jsonforms/react";
-import { TextField } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 
 const PercentageControl = ({ data, handleChange, path, rootSchema }: any) => {
   const [error, setError] = React.useState("");
+  const [warning, setWarning] = React.useState("");
 
   const validatePercentage = (value: number) => {
     if (value < 0 || value > 100) {
@@ -20,9 +21,14 @@ const PercentageControl = ({ data, handleChange, path, rootSchema }: any) => {
       (total: number, item: any) => total + (item.pourcentage || 0),
       0
     );
-    if (totalPercentage !== 100) {
+
+    if (totalPercentage > 100) {
+      setWarning("Attention : Le total des pourcentages dépasse 100%.");
+    } else if (totalPercentage < 100) {
+      setWarning("");
       setError("Le total des pourcentages doit être égal à 100%.");
     } else {
+      setWarning("");
       setError("");
     }
   }, [rootSchema?.paysPourcentage]);
@@ -37,6 +43,7 @@ const PercentageControl = ({ data, handleChange, path, rootSchema }: any) => {
         helperText={error || "Entrez un pourcentage entre 0 et 100"}
         label="Pourcentage"
       />
+      {warning && <Typography color="orange">{warning}</Typography>}
     </div>
   );
 };
